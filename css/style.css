@@ -1,0 +1,869 @@
+/* ==========================================================================
+   Story Time — PDF Story Viewer
+   Customization stylesheet. Change colors, fonts, spacing, sizes here.
+   The viewer's JS (js/viewer.js) does not need to change when this file
+   changes — all visual theming lives here.
+   ========================================================================== */
+
+:root {
+  /* Brand colors */
+  --sv-primary: #3aa0f0;
+  --sv-primary-dark: #1c7fd6;
+  --sv-secondary: #38b26a;
+  --sv-accent: #ff8a3d;
+  --sv-accent-dark: #f06a17;
+  --sv-header-grad-start: #4facf5;
+  --sv-header-grad-end: #2f7fe0;
+
+  /* Surfaces */
+  --sv-bg-start: #d7ecfb;
+  --sv-bg-end: #eef8ec;
+  --sv-card-bg: #ffffff;
+  --sv-footer-bg: #f6faf1;
+  --sv-panel-bg: #ffffff;
+
+  /* Text */
+  --sv-text-dark: #223247;
+  --sv-text-muted: #7188a0;
+  --sv-text-on-primary: #ffffff;
+
+  /* Typography */
+  --sv-font-family: 'Baloo 2', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --sv-body-font-family: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --sv-title-size: 21px;
+  --sv-subtitle-size: 12px;
+
+  /* Shape & spacing */
+  --sv-radius-lg: 26px;
+  --sv-radius-md: 16px;
+  --sv-radius-pill: 999px;
+  --sv-gap: 14px;
+  --sv-shadow: 0 14px 34px rgba(20, 60, 110, 0.16);
+}
+
+/* ---------------- Reader themes ----------------
+   Each theme is just a swap of the CSS variables above, scoped to
+   #story-viewer. Add a new theme by copying a block and changing the
+   colors — js/viewer.js only ever toggles the class name, it has no
+   theme-specific logic. */
+.sv-theme-green {
+  --sv-primary: #3aa85c;
+  --sv-primary-dark: #278a44;
+  --sv-secondary: #2f9e6e;
+  --sv-accent: #ffb238;
+  --sv-accent-dark: #e8941a;
+  --sv-header-grad-start: #4cc47a;
+  --sv-header-grad-end: #2f9e5c;
+  --sv-bg-start: #dcf5e4;
+  --sv-bg-end: #f3fbe9;
+  --sv-footer-bg: #f2f9ee;
+}
+
+.sv-theme-sunset {
+  --sv-primary: #ff7a59;
+  --sv-primary-dark: #e85a38;
+  --sv-secondary: #ffb238;
+  --sv-accent: #a855f7;
+  --sv-accent-dark: #8b34e0;
+  --sv-header-grad-start: #ff9a6b;
+  --sv-header-grad-end: #ff5f7e;
+  --sv-bg-start: #ffe8d6;
+  --sv-bg-end: #fff0f0;
+  --sv-footer-bg: #fff5ec;
+}
+
+.sv-theme-purple {
+  --sv-primary: #8b5cf6;
+  --sv-primary-dark: #6d3ce0;
+  --sv-secondary: #a855f7;
+  --sv-accent: #ec4899;
+  --sv-accent-dark: #d1287a;
+  --sv-header-grad-start: #a78bfa;
+  --sv-header-grad-end: #7c3aed;
+  --sv-bg-start: #ede9fe;
+  --sv-bg-end: #fce7f3;
+  --sv-footer-bg: #f5f1fe;
+}
+
+.sv-theme-night {
+  --sv-primary: #5b9cf6;
+  --sv-primary-dark: #3d7cd6;
+  --sv-secondary: #4dd0a7;
+  --sv-accent: #ffb238;
+  --sv-accent-dark: #e8941a;
+  --sv-header-grad-start: #2c3e64;
+  --sv-header-grad-end: #17203a;
+  --sv-bg-start: #1a2338;
+  --sv-bg-end: #10151f;
+  --sv-card-bg: #232d42;
+  --sv-footer-bg: #1a2338;
+  --sv-panel-bg: #232d42;
+  --sv-text-dark: #eef2f8;
+  --sv-text-muted: #93a2ba;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: var(--sv-body-font-family);
+  background: var(--sv-bg-start);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+/* Disable text selection app-wide (story reader, not a text document) */
+.story-viewer {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.story-viewer {
+  height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ---------------- Header ---------------- */
+.sv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, var(--sv-header-grad-start), var(--sv-header-grad-end));
+  color: var(--sv-text-on-primary);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(20, 90, 170, 0.25);
+}
+
+.sv-header::before,
+.sv-header::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+.sv-header::before { width: 140px; height: 140px; top: -70px; right: -30px; }
+.sv-header::after { width: 90px; height: 90px; bottom: -60px; left: 40%; }
+
+.sv-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0; /* allow the title/subtitle below to actually shrink+truncate */
+  flex: 1 1 auto;
+}
+
+.sv-header-icon {
+  font-size: 22px;
+  background: rgba(255, 255, 255, 0.22);
+  width: 42px;
+  height: 42px;
+  border-radius: var(--sv-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.35);
+  position: relative;
+  z-index: 1;
+}
+
+.sv-header-text {
+  position: relative;
+  z-index: 1;
+  min-width: 0; /* required alongside white-space:nowrap for ellipsis to work in a flex child */
+}
+
+.sv-header-text h1 {
+  margin: 0;
+  font-family: var(--sv-font-family);
+  font-size: var(--sv-title-size);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sv-header-text p {
+  margin: 2px 0 0;
+  font-size: var(--sv-subtitle-size);
+  opacity: 0.92;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sv-header-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.sv-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.sv-icon-btn:hover { background: rgba(255, 255, 255, 0.26); }
+
+.sv-back-btn {
+  text-decoration: none;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.sv-icon-btn:active { transform: scale(0.92); }
+
+/* ---------------- Stage ---------------- */
+.sv-stage {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  overflow: hidden;
+  min-height: 0;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(255,255,255,0.6), transparent 40%),
+    linear-gradient(180deg, var(--sv-bg-start), var(--sv-bg-end));
+  perspective: 1800px;
+}
+
+.sv-stage-decor {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  filter: blur(0.5px);
+  pointer-events: none;
+  z-index: 0;
+}
+.sv-decor-cloud1 { width: 90px; height: 34px; top: 8%; left: 6%; border-radius: 50px; }
+.sv-decor-cloud2 { width: 60px; height: 24px; bottom: 12%; right: 8%; border-radius: 50px; }
+
+.sv-page-card {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  background: var(--sv-card-bg);
+  border-radius: var(--sv-radius-lg);
+  box-shadow: var(--sv-shadow);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 6px solid #ffffff;
+  outline: 1px solid rgba(20, 60, 110, 0.08);
+  z-index: 1;
+  transform-style: preserve-3d;
+}
+
+.sv-page-card canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: calc(var(--sv-radius-lg) - 6px);
+  pointer-events: none; /* prevent drag-save of canvas image */
+}
+
+/* ---------------- Double-page (open book) mode ---------------- */
+.sv-page-card.sv-double-page {
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  background: #fff;
+}
+
+.sv-page-card.sv-double-page canvas {
+  max-width: 50%;
+  border-radius: 0;
+}
+
+.sv-page-card.sv-double-page #pdfCanvas {
+  border-radius: calc(var(--sv-radius-lg) - 6px) 0 0 calc(var(--sv-radius-lg) - 6px);
+}
+
+.sv-page-card.sv-double-page #pdfCanvas2 {
+  border-radius: 0 calc(var(--sv-radius-lg) - 6px) calc(var(--sv-radius-lg) - 6px) 0;
+}
+
+/* Center spine crease, like an open book's fold */
+.sv-page-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 26px;
+  margin-left: -13px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    rgba(0,0,0,0.16) 0%,
+    rgba(0,0,0,0.05) 25%,
+    rgba(0,0,0,0.02) 50%,
+    rgba(0,0,0,0.05) 75%,
+    rgba(0,0,0,0.16) 100%);
+}
+
+.sv-mode-icon-double { display: none; }
+#pageModeBtn.sv-mode-active .sv-mode-icon-single { display: none; }
+#pageModeBtn.sv-mode-active .sv-mode-icon-double { display: block; }
+
+.sv-hidden { display: none !important; }
+
+/* ---------------- Rotate-device hint (double-page mode on portrait mobile) --- */
+.sv-rotate-hint {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(20, 40, 70, 0.82);
+  color: #fff;
+  text-align: center;
+  padding: 24px;
+  border-radius: var(--sv-radius-lg);
+}
+
+.sv-rotate-icon {
+  font-size: 40px;
+  animation: sv-rotate-spin 1.6s ease-in-out infinite;
+}
+
+@keyframes sv-rotate-spin {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-90deg); }
+}
+
+.sv-rotate-hint p {
+  margin: 0;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ---------------- Folding page-turn transition ---------------- */
+/* The outgoing page/spread is split into two hinged halves ("fold-a" and
+   nested "fold-b") so the outer half creases against the inner half as it
+   turns — a real paper fold, not a single flat card rotating in space. */
+.sv-flip-leaf {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.sv-fold-half {
+  position: absolute;
+  top: 0;
+  width: 50%; /* halfA: 50% of the leaf */
+  height: 100%;
+  transform-style: preserve-3d;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+  transition: transform 0.6s cubic-bezier(.45, .05, .55, .95);
+}
+
+/* halfB is nested inside halfA, so "100%" here means 100% of halfA's width
+   (= 50% of the leaf) — giving it the other half of the spread. */
+.sv-fold-b {
+  width: 100%;
+}
+
+.sv-fold-inner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.sv-fold-img {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 200%; /* full spread image; only half is visible through the clipped parent */
+  max-width: none;
+  backface-visibility: hidden;
+}
+.sv-fold-img-left { left: 0; }
+.sv-fold-img-right { left: -100%; }
+
+/* Shading that deepens as each half creases, selling the fold */
+.sv-fold-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+/* NEXT: hinge at the left/spine edge, folding away to the left */
+.sv-flip-next .sv-fold-a {
+  left: 0;
+  transform-origin: left center;
+  border-radius: calc(var(--sv-radius-lg) - 6px) 0 0 calc(var(--sv-radius-lg) - 6px);
+}
+.sv-flip-next .sv-fold-a .sv-fold-inner { border-radius: inherit; }
+.sv-flip-next .sv-fold-b {
+  left: 100%;
+  transform-origin: left center;
+}
+.sv-flip-next .sv-fold-a .sv-fold-inner::after { background: linear-gradient(90deg, transparent 60%, rgba(0,0,0,0.25)); }
+.sv-flip-next .sv-fold-b .sv-fold-inner::after { background: linear-gradient(270deg, transparent 55%, rgba(0,0,0,0.35)); }
+
+.sv-flip-next.sv-flip-animate .sv-fold-a { transform: rotateY(-165deg); }
+.sv-flip-next.sv-flip-animate .sv-fold-b { transform: rotateY(-170deg); transition-delay: 0.1s; }
+.sv-flip-next.sv-flip-animate .sv-fold-inner::after { opacity: 1; }
+
+/* PREV: hinge at the right edge, folding away to the right */
+.sv-flip-prev .sv-fold-a {
+  right: 0;
+  left: auto;
+  transform-origin: right center;
+  border-radius: 0 calc(var(--sv-radius-lg) - 6px) calc(var(--sv-radius-lg) - 6px) 0;
+}
+.sv-flip-prev .sv-fold-a .sv-fold-inner { border-radius: inherit; }
+.sv-flip-prev .sv-fold-b {
+  right: 100%;
+  left: auto;
+  transform-origin: right center;
+}
+.sv-flip-prev .sv-fold-a .sv-fold-inner::after { background: linear-gradient(270deg, transparent 60%, rgba(0,0,0,0.25)); }
+.sv-flip-prev .sv-fold-b .sv-fold-inner::after { background: linear-gradient(90deg, transparent 55%, rgba(0,0,0,0.35)); }
+
+.sv-flip-prev.sv-flip-animate .sv-fold-a { transform: rotateY(165deg); }
+.sv-flip-prev.sv-flip-animate .sv-fold-b { transform: rotateY(170deg); transition-delay: 0.1s; }
+.sv-flip-prev.sv-flip-animate .sv-fold-inner::after { opacity: 1; }
+
+/* Invisible shield over the canvas: blocks long-press save-image / drag on iOS & Android */
+.sv-canvas-shield {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+.sv-swipe-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 18%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.sv-swipe-left { left: 0; }
+.sv-swipe-right { right: 0; }
+
+/* ---------------- Loading ---------------- */
+.sv-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: linear-gradient(180deg, var(--sv-bg-start), var(--sv-bg-end));
+  z-index: 10;
+  color: var(--sv-text-muted);
+  font-size: 14px;
+}
+
+.sv-loading.sv-hidden { display: none; }
+
+.sv-spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 4px solid rgba(47, 143, 224, 0.2);
+  border-top-color: var(--sv-primary);
+  animation: sv-spin 0.8s linear infinite;
+}
+
+@keyframes sv-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------------- Footer / Nav ---------------- */
+.sv-footer {
+  flex-shrink: 0;
+  background: var(--sv-footer-bg);
+  padding: 14px 16px calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(0,0,0,0.05);
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -6px 18px rgba(20, 60, 110, 0.06);
+}
+
+.sv-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sv-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  border-radius: var(--sv-radius-pill);
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--sv-font-family);
+  cursor: pointer;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.14);
+  transition: transform 0.1s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sv-btn:active { transform: scale(0.95); box-shadow: 0 2px 6px rgba(0,0,0,0.14); }
+
+.sv-btn:disabled {
+  opacity: 0.35;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.sv-btn-prev {
+  background: linear-gradient(135deg, var(--sv-primary), var(--sv-primary-dark));
+}
+
+.sv-btn-next {
+  background: linear-gradient(135deg, var(--sv-accent), var(--sv-accent-dark));
+}
+
+.sv-btn-arrow { font-size: 17px; line-height: 1; }
+
+.sv-page-indicator {
+  font-family: var(--sv-font-family);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sv-text-dark);
+  white-space: nowrap;
+  background: rgba(58, 160, 240, 0.1);
+  padding: 6px 14px;
+  border-radius: var(--sv-radius-pill);
+}
+
+.sv-slider {
+  width: 100%;
+  accent-color: var(--sv-primary);
+  margin: 0 0 10px;
+}
+
+.sv-tab-bar {
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding-top: 8px;
+}
+
+.sv-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  font-family: var(--sv-body-font-family);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--sv-text-muted);
+  cursor: pointer;
+  padding: 4px 14px;
+  border-radius: var(--sv-radius-md);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sv-tab:active { background: rgba(58, 160, 240, 0.1); }
+
+.sv-tab.sv-tab-active { color: var(--sv-primary-dark); background: rgba(58, 160, 240, 0.12); }
+
+.sv-tab-icon { font-size: 19px; }
+
+/* ---------------- Panels (Pages / Contents) ---------------- */
+.sv-panel {
+  position: absolute;
+  inset: 0;
+  background: var(--sv-panel-bg);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(0);
+  transition: transform 0.25s ease;
+}
+
+.sv-panel-hidden {
+  transform: translateY(100%);
+  pointer-events: none;
+}
+
+.sv-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.sv-panel-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--sv-text-dark);
+}
+
+.sv-panel-close {
+  border: none;
+  background: rgba(0,0,0,0.06);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.sv-pages-grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 16px;
+}
+
+.sv-page-thumb {
+  border: 2px solid transparent;
+  border-radius: var(--sv-radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  background: #f0f0f0;
+  aspect-ratio: 3/4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sv-text-muted);
+}
+
+.sv-page-thumb.sv-page-thumb-active {
+  border-color: var(--sv-primary);
+  color: var(--sv-primary-dark);
+}
+
+.sv-contents-list {
+  list-style: none;
+  margin: 0;
+  padding: 12px 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sv-contents-list li {
+  padding: 12px 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  cursor: pointer;
+  color: var(--sv-text-dark);
+  display: flex;
+  justify-content: space-between;
+}
+
+.sv-contents-list li:active { background: rgba(47,143,224,0.08); }
+
+/* ---------------- Settings popup (centered modal, not a full panel) ------ */
+.sv-modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 40, 70, 0.55);
+  padding: 24px;
+}
+
+.sv-modal-overlay.sv-panel-hidden {
+  display: none;
+}
+
+.sv-modal-box {
+  width: 100%;
+  max-width: 320px;
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--sv-panel-bg);
+  border-radius: var(--sv-radius-lg);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+  animation: sv-modal-in 0.18s ease;
+}
+
+@keyframes sv-modal-in {
+  from { opacity: 0; transform: scale(0.94) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.sv-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.sv-modal-header h2 {
+  margin: 0;
+  font-family: var(--sv-font-family);
+  font-size: 18px;
+  color: var(--sv-text-dark);
+}
+
+.sv-modal-close {
+  border: none;
+  background: rgba(0, 0, 0, 0.06);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--sv-text-dark);
+}
+
+.sv-settings-body {
+  padding: 16px;
+}
+
+.sv-settings-label {
+  margin: 0 0 12px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--sv-text-muted);
+}
+
+.sv-theme-swatches {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.sv-theme-swatch {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  transition: transform 0.12s ease, border-color 0.15s ease;
+}
+.sv-theme-swatch:active { transform: scale(0.92); }
+.sv-theme-swatch.sv-swatch-active {
+  border-color: var(--sv-text-dark);
+}
+
+.sv-swatch-blue { background: linear-gradient(135deg, #4facf5, #2f7fe0); }
+.sv-swatch-green { background: linear-gradient(135deg, #4cc47a, #2f9e5c); }
+.sv-swatch-sunset { background: linear-gradient(135deg, #ff9a6b, #ff5f7e); }
+.sv-swatch-purple { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+.sv-swatch-night { background: linear-gradient(135deg, #2c3e64, #10151f); }
+
+/* ---------------- Orientation & responsive ---------------- */
+@media (orientation: landscape) {
+  .sv-header-text p { display: none; }
+  .sv-stage { padding: 10px 60px; }
+}
+
+/* Reading-priority layout: mobile phones in landscape (short viewport
+   height) shrink all chrome to a minimum so the book itself gets almost
+   the entire screen instead of being squeezed by a full-size header/footer. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .sv-header {
+    padding: 5px 10px;
+  }
+  .sv-header-brand { gap: 8px; }
+  .sv-header-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+  .sv-header-text h1 { font-size: 14px; }
+  .sv-icon-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+  }
+  .sv-back-btn { font-size: 13px; }
+
+  .sv-stage { padding: 4px 46px; }
+
+  .sv-page-card {
+    border-width: 3px;
+    border-radius: 14px;
+  }
+  .sv-page-card canvas,
+  .sv-page-card.sv-double-page #pdfCanvas,
+  .sv-page-card.sv-double-page #pdfCanvas2 {
+    border-radius: 11px;
+  }
+
+  .sv-footer {
+    padding: 6px 12px calc(4px + env(safe-area-inset-bottom));
+    border-radius: 14px 14px 0 0;
+  }
+  .sv-nav-row { margin-bottom: 0; }
+  .sv-btn { padding: 6px 12px; font-size: 12px; }
+  .sv-btn-arrow { font-size: 13px; }
+  .sv-page-indicator { font-size: 12px; padding: 4px 10px; }
+
+  /* Slider and tab labels are secondary controls (page-jump is also
+     reachable via the Pages panel) — hide/shrink them here so the book
+     itself keeps as much of the short landscape viewport as possible. */
+  .sv-slider { display: none; }
+  .sv-tab-bar { padding-top: 4px; border-top: none; }
+  .sv-tab { padding: 2px 10px; gap: 0; }
+  .sv-tab-icon { font-size: 15px; }
+  .sv-tab span:last-child { display: none; }
+
+  .sv-rotate-hint { display: none; } /* already landscape — never relevant here */
+}
+
+@media (max-width: 360px) {
+  .sv-btn { padding: 9px 12px; font-size: 12px; }
+  .sv-page-indicator { font-size: 13px; }
+}
+
+/* Fullscreen mode tweak */
+.story-viewer:fullscreen { background: #000; }

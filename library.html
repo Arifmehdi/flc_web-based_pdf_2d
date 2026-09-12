@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Story Time — Choose a Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/booklist.css" />
+</head>
+<body>
+
+  <div class="bl-page">
+    <header class="bl-header">
+      <div class="bl-header-brand">
+        <button id="blBackBtn" class="bl-back-btn" title="Back to your story" aria-label="Back to your story">‹</button>
+        <span class="bl-header-icon" aria-hidden="true">📖</span>
+        <div>
+          <h1>Story Time</h1>
+          <p>Pick a story to begin</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="bl-main">
+      <div id="blLoading" class="bl-status">Loading stories…</div>
+      <div id="blEmpty" class="bl-status bl-hidden">No stories are available yet. Please check back soon!</div>
+      <div id="blGrid" class="bl-grid"></div>
+    </main>
+  </div>
+
+  <script src="js/vendor/pdf.min.js"></script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/vendor/pdf.worker.min.js';</script>
+  <script src="js/booklist.js"></script>
+</body>
+</html>

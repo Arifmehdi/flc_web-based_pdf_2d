@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Story Time — PDF Story Viewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body oncontextmenu="return false;">
+
+  <div id="story-viewer" class="story-viewer">
+
+    <!-- Header -->
+    <header class="sv-header">
+      <div class="sv-header-brand">
+        <a href="library.html" class="sv-icon-btn sv-back-btn" title="All stories" aria-label="Go to library">▦</a>
+        <span class="sv-header-icon" aria-hidden="true">📖</span>
+        <div class="sv-header-text">
+          <h1 id="storyTitle">Story Time</h1>
+          <p id="storySubtitle">Read • Learn • Imagine</p>
+        </div>
+      </div>
+      <div class="sv-header-actions">
+        <button id="pageModeBtn" class="sv-icon-btn" title="Switch to double-page book view" aria-label="Switch to double-page book view">
+          <svg class="sv-mode-icon sv-mode-icon-single" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="2" width="10" height="14" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+          <svg class="sv-mode-icon sv-mode-icon-double" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 3.5C7.3 2.6 4.8 2.2 2.5 2.6V14c2.3-.4 4.8 0 6.5.9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M9 3.5C10.7 2.6 13.2 2.2 15.5 2.6V14c-2.3-.4-4.8 0-6.5.9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button id="fullscreenBtn" class="sv-icon-btn" title="Fullscreen" aria-label="Toggle fullscreen">⤢</button>
+        <button id="settingsBtn" class="sv-icon-btn" title="Settings" aria-label="Settings">⚙</button>
+      </div>
+    </header>
+
+    <!-- Page stage -->
+    <main class="sv-stage">
+      <div class="sv-stage-decor sv-decor-cloud1" aria-hidden="true"></div>
+      <div class="sv-stage-decor sv-decor-cloud2" aria-hidden="true"></div>
+
+      <div id="loadingOverlay" class="sv-loading">
+        <div class="sv-spinner"></div>
+        <p>Loading story…</p>
+      </div>
+
+      <div id="pageCard" class="sv-page-card">
+        <canvas id="pdfCanvas"></canvas>
+        <canvas id="pdfCanvas2" class="sv-hidden"></canvas>
+        <div id="pageSpine" class="sv-page-spine sv-hidden" aria-hidden="true"></div>
+        <!-- transparent overlay blocks long-press / drag-save on the canvas image -->
+        <div class="sv-canvas-shield"></div>
+      </div>
+
+      <button id="swipeLeftZone" class="sv-swipe-zone sv-swipe-left" aria-label="Previous page"></button>
+      <button id="swipeRightZone" class="sv-swipe-zone sv-swipe-right" aria-label="Next page"></button>
+
+      <div id="rotateHint" class="sv-rotate-hint sv-hidden">
+        <div class="sv-rotate-icon" aria-hidden="true">↻</div>
+        <p>Rotate your device to landscape<br>to view this story as a book</p>
+      </div>
+    </main>
+
+    <!-- Footer / controls -->
+    <footer class="sv-footer">
+      <div class="sv-nav-row">
+        <button id="prevBtn" class="sv-btn sv-btn-prev">
+          <span class="sv-btn-arrow">‹</span> Previous
+        </button>
+        <div class="sv-page-indicator">
+          <span id="currentPage">1</span> / <span id="totalPages">1</span>
+        </div>
+        <button id="nextBtn" class="sv-btn sv-btn-next">
+          Next <span class="sv-btn-arrow">›</span>
+        </button>
+      </div>
+
+      <input type="range" id="pageSlider" class="sv-slider" min="1" max="1" step="1" value="1" aria-label="Go to page" />
+
+      <nav class="sv-tab-bar">
+        <button id="pagesTab" class="sv-tab">
+          <span class="sv-tab-icon">▦</span><span>Pages</span>
+        </button>
+        <button id="bookmarkTab" class="sv-tab">
+          <span class="sv-tab-icon">🔖</span><span>Bookmark</span>
+        </button>
+        <button id="contentsTab" class="sv-tab">
+          <span class="sv-tab-icon">≡</span><span>Contents</span>
+        </button>
+      </nav>
+    </footer>
+
+    <!-- Pages grid (thumbnail jump) -->
+    <div id="pagesPanel" class="sv-panel sv-panel-hidden">
+      <div class="sv-panel-header">
+        <h2>Pages</h2>
+        <button class="sv-panel-close" data-close-panel>✕</button>
+      </div>
+      <div id="pagesGrid" class="sv-pages-grid"></div>
+    </div>
+
+    <!-- Contents / table of contents (simple page list, customizable) -->
+    <div id="contentsPanel" class="sv-panel sv-panel-hidden">
+      <div class="sv-panel-header">
+        <h2>Contents</h2>
+        <button class="sv-panel-close" data-close-panel>✕</button>
+      </div>
+      <ul id="contentsList" class="sv-contents-list"></ul>
+    </div>
+
+    <!-- Settings / theme picker — shown as a centered popup, not a full page/panel -->
+    <div id="settingsPanel" class="sv-modal-overlay sv-panel-hidden">
+      <div class="sv-modal-box">
+        <div class="sv-modal-header">
+          <h2>Settings</h2>
+          <button class="sv-modal-close" data-close-panel>✕</button>
+        </div>
+        <div class="sv-settings-body">
+          <p class="sv-settings-label">Theme</p>
+          <div id="themeSwatches" class="sv-theme-swatches">
+            <button class="sv-theme-swatch sv-swatch-blue" data-theme="blue" title="Blue" aria-label="Blue theme"></button>
+            <button class="sv-theme-swatch sv-swatch-green" data-theme="green" title="Green" aria-label="Green theme"></button>
+            <button class="sv-theme-swatch sv-swatch-sunset" data-theme="sunset" title="Sunset" aria-label="Sunset theme"></button>
+            <button class="sv-theme-swatch sv-swatch-purple" data-theme="purple" title="Purple" aria-label="Purple theme"></button>
+            <button class="sv-theme-swatch sv-swatch-night" data-theme="night" title="Night" aria-label="Night theme"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- pdf.js -->
+  <script src="js/vendor/pdf.min.js"></script>
+  <script src="js/viewer.js"></script>
+</body>
+</html>

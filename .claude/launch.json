@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "story-viewer",
+      "runtimeExecutable": "php",
+      "runtimeArgs": ["-S", "localhost:8124", "-t", "."],
+      "port": 8124
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Story Time</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/booklist.css" />
+</head>
+<body>
+  <div class="bl-page">
+    <main class="bl-main">
+      <div id="rdStatus" class="bl-status">Opening your story…</div>
+    </main>
+  </div>
+
+  <script>
+    /**
+     * Entry point: sends the visitor straight into a book instead of the
+     * library. Returning readers land back on the last book they opened
+     * (js/viewer.js records this on load); first-time visitors land on the
+     * first book in the catalog. The library itself is reached via the
+     * "Library" link in the viewer header.
+     */
+    (function () {
+      var LAST_BOOK_KEY = 'sv-last-book-id';
+
+      fetch('api/books.php', { cache: 'no-store' })
+        .then(function (res) { return res.json(); })
+        .then(function (books) {
+          if (!books.length) {
+            window.location.replace('library.html');
+            return;
+          }
+
+          var lastId = localStorage.getItem(LAST_BOOK_KEY);
+          var stillExists = lastId && books.some(function (b) { return b.id === lastId; });
+          var targetId = stillExists ? lastId : books[0].id;
+
+          window.location.replace('viewer.html?id=' + encodeURIComponent(targetId));
+        })
+        .catch(function () {
+          document.getElementById('rdStatus').textContent =
+            'Could not load stories. Please try again later.';
+        });
+    })();
+  </script>
+</body>
+</html>
