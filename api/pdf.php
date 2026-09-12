@@ -24,6 +24,21 @@ if (!file_exists($path)) {
   exit('File missing');
 }
 
+// Only count real reads (viewer.js passes &track=1), not the background
+// fetches booklist.js/admin-covers.js make just to render a cover
+// thumbnail — otherwise "Popular" would just reflect thumbnail cache misses.
+if (($_GET['track'] ?? '') === '1') {
+  $allBooks = books_load();
+  foreach ($allBooks as &$b) {
+    if ($b['id'] === $id) {
+      $b['views'] = ($b['views'] ?? 0) + 1;
+      break;
+    }
+  }
+  unset($b);
+  books_save($allBooks);
+}
+
 header('Content-Type: application/pdf');
 header('Content-Length: ' . filesize($path));
 header('Content-Disposition: inline; filename="story.pdf"');

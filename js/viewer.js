@@ -13,12 +13,28 @@
   // side — the actual filename/path is never exposed to the client.
   const params = new URLSearchParams(window.location.search);
   const bookId = params.get('id');
-  const PDF_URL = bookId ? 'api/pdf.php?id=' + encodeURIComponent(bookId) : 'story.pdf';
+  const PDF_URL = bookId ? 'api/pdf.php?id=' + encodeURIComponent(bookId) + '&track=1' : 'story.pdf';
 
   // Remember the last book opened so index.html can send returning visitors
   // straight back into it instead of the library.
   if (bookId) {
     localStorage.setItem('sv-last-book-id', bookId);
+  }
+
+  // ?page=N opens directly at that page — used by the library page's
+  // "Continue reading" card to jump back to where the reader left off.
+  const requestedPage = parseInt(params.get('page'), 10) || 1;
+
+  // Per-book reading progress, read by the library page to build the
+  // "Continue reading" card (title, current page, total pages, recency).
+  const PROGRESS_KEY = 'sv-progress';
+  function saveProgress(page, total) {
+    if (!bookId) return;
+    try {
+      const all = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+      all[bookId] = { page: page, totalPages: total, updatedAt: Date.now() };
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(all));
+    } catch (err) { /* ignore — storage full/unavailable */ }
   }
 
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/vendor/pdf.worker.min.js';
@@ -59,6 +75,21 @@
   const settingsPanel = document.getElementById('settingsPanel');
   const themeSwatches = document.getElementById('themeSwatches');
   const storyViewerEl = document.getElementById('story-viewer');
+  const bookmarkTab = document.getElementById('bookmarkTab');
+  const bookmarksStrip = document.getElementById('bookmarksStrip');
+  const bookmarksChips = document.getElementById('bookmarksChips');
+  const svToast = document.getElementById('svToast');
+
+  // Keeps the footer controls (Previous/Next, slider, tab bar) the same
+  // width as the book itself — whichever it currently is, single page or a
+  // full double-page spread — instead of a fixed width that would look too
+  // narrow next to a wide open-book spread.
+  if (window.ResizeObserver) {
+    new ResizeObserver((entries) => {
+      const width = entries[0].contentRect.width;
+      if (width > 0) storyViewerEl.style.setProperty('--sv-book-width', width + 'px');
+    }).observe(pageCard);
+  }
 
   // ---- Protection helpers ---------------------------------------------------
   // Block common save/copy interactions. Not a guarantee against a determined
@@ -276,6 +307,8 @@
     pageSlider.value = pages[0];
     prevBtn.disabled = pages[0] <= 1;
     nextBtn.disabled = pages[pages.length - 1] >= totalPages;
+    saveProgress(pages[0], totalPages);
+    updateBookmarkTabUI();
 
     if (currentRenderTask) currentRenderTask.cancel();
     if (currentRenderTask2) currentRenderTask2.cancel();
@@ -325,11 +358,11 @@
     totalPagesEl.textContent = totalPages;
     pageSlider.max = totalPages;
 
-    buildPagesGrid();
     buildContentsList();
 
     loadingOverlay.classList.add('sv-hidden');
-    renderPage(1);
+    const startPage = Math.min(Math.max(requestedPage, 1), totalPages);
+    renderPage(startPage);
   }).catch((err) => {
     console.error('PDF load failed', err);
     const isFileProtocol = window.location.protocol === 'file:';
@@ -341,17 +374,69 @@
   });
 
   // ---- Panels: Pages grid & Contents list --------------------------------
+  // Real page thumbnails (not just "Page N" placeholders), rendered lazily —
+  // only once the Pages panel is actually opened — and cached in
+  // localStorage so re-opening it (or revisiting the book) is instant.
+  const THUMB_CACHE_PREFIX = 'sv-page-thumb-';
+  let pagesGridBuilt = false;
+
+  function thumbCacheKey(pageNum) {
+    return THUMB_CACHE_PREFIX + bookId + '-' + pageNum;
+  }
+
+  function renderPageThumb(pageNum, canvas) {
+    const cached = bookId && (() => {
+      try { return localStorage.getItem(thumbCacheKey(pageNum)); } catch (err) { return null; }
+    })();
+    if (cached) {
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+      };
+      img.src = cached;
+      return;
+    }
+    pdfDoc.getPage(pageNum).then((page) => {
+      const targetWidth = 160;
+      const baseViewport = page.getViewport({ scale: 1 });
+      const viewport = page.getViewport({ scale: targetWidth / baseViewport.width });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      return page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise.then(() => {
+        if (!bookId) return;
+        try { localStorage.setItem(thumbCacheKey(pageNum), canvas.toDataURL('image/jpeg', 0.75)); } catch (err) { /* storage full — non-fatal */ }
+      });
+    }).catch((err) => console.error('Page thumbnail render failed for page', pageNum, err));
+  }
+
   function buildPagesGrid() {
+    if (pagesGridBuilt) return;
+    pagesGridBuilt = true;
     pagesGrid.innerHTML = '';
     for (let i = 1; i <= totalPages; i++) {
       const thumb = document.createElement('button');
       thumb.className = 'sv-page-thumb';
-      thumb.textContent = 'Page ' + i;
+      thumb.setAttribute('aria-label', 'Page ' + i);
+
+      const canvas = document.createElement('canvas');
+      thumb.appendChild(canvas);
+      const label = document.createElement('span');
+      label.className = 'sv-page-thumb-num';
+      label.textContent = i;
+      thumb.appendChild(label);
+
+      if (isBookmarked(i)) {
+        thumb.appendChild(makeBookmarkRibbon());
+      }
+
       thumb.addEventListener('click', () => {
         goToPage(i);
         closePanels();
       });
       pagesGrid.appendChild(thumb);
+      renderPageThumb(i, canvas);
     }
   }
 
@@ -375,6 +460,8 @@
   }
 
   pagesTab.addEventListener('click', () => {
+    if (pdfDoc) buildPagesGrid();
+    renderBookmarksStrip();
     contentsPanel.classList.add('sv-panel-hidden');
     settingsPanel.classList.add('sv-panel-hidden');
     pagesPanel.classList.toggle('sv-panel-hidden');
@@ -425,12 +512,111 @@
     applyTheme(theme);
   });
 
-  // Simple bookmark (stores current page in localStorage)
-  document.getElementById('bookmarkTab').addEventListener('click', () => {
-    localStorage.setItem('sv-bookmark-page', String(currentPage));
-    const el = document.getElementById('bookmarkTab');
-    el.classList.add('sv-tab-active');
-    setTimeout(() => el.classList.remove('sv-tab-active'), 600);
+  // ---- Bookmarks -----------------------------------------------------------
+  // Per-book list of bookmarked page numbers, kept in localStorage so it
+  // survives closing the browser. One tap on the Bookmark tab toggles the
+  // *current* page; the Pages panel shows a ribbon on every bookmarked
+  // thumbnail, plus a strip of quick-jump chips at the top.
+  const BOOKMARKS_KEY = 'sv-bookmarks';
+
+  function getAllBookmarks() {
+    try { return JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || '{}'); } catch (err) { return {}; }
+  }
+  function getBookmarks() {
+    if (!bookId) return [];
+    const all = getAllBookmarks();
+    return Array.isArray(all[bookId]) ? all[bookId] : [];
+  }
+  function saveBookmarks(pages) {
+    if (!bookId) return;
+    const all = getAllBookmarks();
+    all[bookId] = pages;
+    try { localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(all)); } catch (err) { /* storage full — non-fatal */ }
+  }
+  function isBookmarked(page) {
+    return getBookmarks().indexOf(page) !== -1;
+  }
+
+  function makeBookmarkRibbon() {
+    const span = document.createElement('span');
+    span.className = 'sv-page-thumb-bookmark';
+    span.innerHTML = '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M5 2h10a1 1 0 0 1 1 1v15l-6-3.6L4 18V3a1 1 0 0 1 1-1Z" fill="currentColor"/></svg>';
+    return span;
+  }
+
+  function showToast(message) {
+    svToast.textContent = message;
+    svToast.classList.remove('sv-hidden');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => svToast.classList.add('sv-hidden'), 1800);
+  }
+
+  function updateBookmarkTabUI() {
+    bookmarkTab.classList.toggle('sv-bookmark-active', isBookmarked(currentPage));
+  }
+
+  function renderBookmarksStrip() {
+    const pages = getBookmarks();
+    bookmarksStrip.classList.toggle('sv-hidden', pages.length === 0);
+    bookmarksChips.innerHTML = '';
+    pages.forEach((page) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'sv-bookmark-chip';
+      chip.innerHTML = '<span>Page ' + page + '</span><span class="sv-bookmark-chip-remove">✕</span>';
+      chip.addEventListener('click', (e) => {
+        if (e.target.closest('.sv-bookmark-chip-remove')) {
+          e.stopPropagation();
+          toggleBookmark(page);
+          return;
+        }
+        goToPage(page);
+        closePanels();
+      });
+      bookmarksChips.appendChild(chip);
+    });
+  }
+
+  // Keeps the currently-open Pages grid's ribbons in sync without a full
+  // rebuild (buildPagesGrid only runs once per book — see pagesGridBuilt).
+  function refreshPageThumbBookmark(page) {
+    const thumb = pagesGrid.children[page - 1];
+    if (!thumb) return;
+    const existing = thumb.querySelector('.sv-page-thumb-bookmark');
+    if (isBookmarked(page)) {
+      if (!existing) thumb.appendChild(makeBookmarkRibbon());
+    } else if (existing) {
+      existing.remove();
+    }
+  }
+
+  function toggleBookmark(page) {
+    const pages = getBookmarks();
+    const idx = pages.indexOf(page);
+    if (idx === -1) {
+      pages.push(page);
+      pages.sort((a, b) => a - b);
+      saveBookmarks(pages);
+      showToast('🔖 Bookmarked page ' + page);
+    } else {
+      pages.splice(idx, 1);
+      saveBookmarks(pages);
+      showToast('Bookmark removed');
+    }
+    updateBookmarkTabUI();
+    renderBookmarksStrip();
+    refreshPageThumbBookmark(page);
+  }
+
+  bookmarkTab.addEventListener('click', () => {
+    if (pdfDoc) buildPagesGrid();
+    toggleBookmark(currentPage);
+    // Jump straight to the Pages panel (bookmarks strip at the top) so it's
+    // obvious where to actually see/manage what you just bookmarked.
+    contentsPanel.classList.add('sv-panel-hidden');
+    settingsPanel.classList.add('sv-panel-hidden');
+    pagesPanel.classList.remove('sv-panel-hidden');
   });
 
   // ---- Nav controls --------------------------------------------------------

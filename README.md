@@ -14,8 +14,17 @@ a client-facing library page to browse/select them.
   `localStorage`), first-time visitors land on the first book in the catalog. If there are no
   books yet, it falls back to the library page.
 - **Library** (`/library.html`) fetches `api/books.php` and shows a grid of story cards to
-  choose from. Reached via the "▦" icon in the viewer header. Tapping a card opens
-  `viewer.html?id=<bookId>`.
+  choose from. Reached via the "‹" back button in the viewer header (or the bottom "Stories"
+  tab). Tapping a card opens `viewer.html?id=<bookId>`. Also includes:
+  - **Search** (title/subtitle, live client-side filter)
+  - **Favorites** — per-device, heart icon on each card, filterable via a pill/bottom tab
+  - **Popular** — sorts by real view counts (`api/pdf.php` increments a book's `views` each
+    time a reader actually opens it — thumbnail-generation fetches are excluded so they don't
+    inflate the count)
+  - **Age filter** — only appears once at least one book has an age range set in admin
+  - **"New" badge** — automatic for any book uploaded in the last 7 days, based on real upload
+    date, no manual flag needed
+  - **Settings** popup (same theme picker as the viewer) reachable from the bottom nav
 - **Viewer** (`/viewer.html`) uses **pdf.js** (Mozilla, Apache-2.0 — free for commercial use)
   to render each PDF page onto an HTML5 `<canvas>` streamed through `api/pdf.php?id=...`.
   Because pages render as images on canvas, there is no native browser PDF toolbar (no

@@ -20,6 +20,7 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $title = trim($_POST['title'] ?? '');
   $subtitle = trim($_POST['subtitle'] ?? '');
+  $ageRange = trim($_POST['ageRange'] ?? '');
 
   if ($title === '') {
     $error = 'Title is required.';
@@ -75,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if ($b['id'] === $book['id']) {
         $b['title'] = $title;
         $b['subtitle'] = $subtitle;
+        $b['ageRange'] = $ageRange;
         if ($newPdfFilename) $b['pdfFile'] = $newPdfFilename;
         if ($newCoverFilename) $b['cover'] = $newCoverFilename;
         if ($newPdfFilename || $newCoverFilename) {
@@ -126,6 +128,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="admin-field">
             <label for="subtitle">Subtitle (optional)</label>
             <input type="text" id="subtitle" name="subtitle" maxlength="160" value="<?= htmlspecialchars($book['subtitle'] ?? '') ?>" />
+          </div>
+          <div class="admin-field">
+            <label for="ageRange">Recommended age (optional)</label>
+            <input type="text" id="ageRange" name="ageRange" maxlength="20" placeholder="e.g. 4-8" value="<?= htmlspecialchars($book['ageRange'] ?? '') ?>" />
+            <p class="admin-hint">Shown as an "Ages 4–8" badge on the story card. Leave empty to hide it.</p>
           </div>
 
           <div class="admin-field-row">

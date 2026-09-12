@@ -62,6 +62,38 @@ body {
   font-size: 14px;
 }
 
+.admin-password-wrap {
+  position: relative;
+  margin-bottom: 18px;
+}
+.admin-password-wrap input {
+  margin-bottom: 0;
+  padding-right: 42px;
+}
+
+.admin-login-card .admin-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  left: auto;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  color: var(--a-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-password-toggle:hover { background: rgba(20, 60, 110, 0.06); }
+.admin-password-toggle svg { width: 18px; height: 18px; flex-shrink: 0; }
+.admin-password-toggle .admin-eye-closed { display: none; }
+.admin-password-toggle.admin-password-visible .admin-eye-open { display: none; }
+.admin-password-toggle.admin-password-visible .admin-eye-closed { display: block; }
+
 .admin-login-card button {
   width: 100%;
   padding: 12px;
@@ -154,6 +186,63 @@ body {
   border-radius: 999px;
   cursor: pointer;
   font-size: 14px;
+}
+.admin-btn-primary:disabled { opacity: 0.6; cursor: default; }
+
+.admin-hidden { display: none !important; }
+
+/* ---- Upload progress (spinner + percentage bar) ---- */
+.admin-upload-progress {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--a-bg);
+}
+
+.admin-upload-spinner {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid rgba(58, 160, 240, 0.2);
+  border-top-color: var(--a-primary);
+  animation: admin-spin 0.8s linear infinite;
+}
+
+.admin-upload-progress-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-upload-progress-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: #dbe6f0;
+  overflow: hidden;
+}
+
+.admin-upload-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--a-primary), var(--a-primary-dark));
+  transition: width 0.15s ease;
+}
+
+.admin-upload-progress-pct {
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--a-primary-dark);
+  min-width: 36px;
+  text-align: right;
 }
 
 .admin-btn-secondary {
@@ -279,4 +368,18 @@ body {
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid #e8eef5;
+}
+
+.admin-current-banner {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid #e8eef5;
+  background:
+    linear-gradient(45deg, #eef4fa 25%, transparent 25%, transparent 75%, #eef4fa 75%),
+    linear-gradient(45deg, #eef4fa 25%, #fff 25%, #fff 75%, #eef4fa 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
 }

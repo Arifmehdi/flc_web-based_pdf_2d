@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $title = trim($_POST['title'] ?? '');
 $subtitle = trim($_POST['subtitle'] ?? '');
+$ageRange = trim($_POST['ageRange'] ?? '');
 
 if ($title === '') {
   flash_and_redirect('error', 'Title is required.');
@@ -65,10 +66,12 @@ $books[] = [
   'id' => $id,
   'title' => $title,
   'subtitle' => $subtitle,
+  'ageRange' => $ageRange,
   'pdfFile' => $pdfFilename,
   'cover' => $coverFilename,
   'uploadedAt' => date('Y-m-d H:i'),
   'updatedAt' => time(), // cache-busts client-side PDF-cover thumbnails on change
+  'views' => 0, // incremented by api/pdf.php each time it's streamed — powers the "Popular" sort
 ];
 books_save($books);
 

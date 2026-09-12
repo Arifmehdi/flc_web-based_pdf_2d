@@ -530,7 +530,8 @@ html, body {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 10px;
+  margin: 0 auto 10px;
+  max-width: var(--sv-book-width, 520px);
 }
 
 .sv-btn {
@@ -580,14 +581,18 @@ html, body {
 }
 
 .sv-slider {
+  display: block;
   width: 100%;
+  max-width: var(--sv-book-width, 520px);
   accent-color: var(--sv-primary);
-  margin: 0 0 10px;
+  margin: 0 auto 10px;
 }
 
 .sv-tab-bar {
   display: flex;
   justify-content: space-around;
+  max-width: var(--sv-book-width, 520px);
+  margin: 0 auto;
   border-top: 1px solid rgba(0,0,0,0.06);
   padding-top: 8px;
 }
@@ -613,7 +618,12 @@ html, body {
 
 .sv-tab.sv-tab-active { color: var(--sv-primary-dark); background: rgba(58, 160, 240, 0.12); }
 
-.sv-tab-icon { font-size: 19px; }
+.sv-tab-icon {
+  display: inline-flex;
+  width: 19px;
+  height: 19px;
+}
+.sv-tab-icon svg { width: 100%; height: 100%; display: block; }
 
 /* ---------------- Panels (Pages / Contents) ---------------- */
 .sv-panel {
@@ -666,23 +676,123 @@ html, body {
 }
 
 .sv-page-thumb {
+  position: relative;
+  padding: 0;
   border: 2px solid transparent;
   border-radius: var(--sv-radius-md);
   overflow: hidden;
   cursor: pointer;
   background: #f0f0f0;
   aspect-ratio: 3/4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
+}
+
+.sv-page-thumb canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sv-page-thumb-num {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 10px;
   font-weight: 700;
-  color: var(--sv-text-muted);
+  padding: 1px 6px;
+  border-radius: 999px;
+  line-height: 1.4;
 }
 
 .sv-page-thumb.sv-page-thumb-active {
   border-color: var(--sv-primary);
+}
+.sv-page-thumb.sv-page-thumb-active .sv-page-thumb-num {
+  background: var(--sv-primary);
+}
+
+/* Small ribbon badge on any thumbnail whose page has been bookmarked. */
+.sv-page-thumb-bookmark {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  width: 16px;
+  height: 20px;
+  color: var(--sv-accent);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
+}
+.sv-page-thumb-bookmark svg { width: 100%; height: 100%; }
+
+/* ---- Bookmarks strip (top of the Pages panel, only shown once at least
+   one page is bookmarked) ---- */
+.sv-bookmarks-strip {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.sv-bookmarks-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sv-text-muted);
+  margin-bottom: 8px;
+}
+.sv-bookmarks-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sv-bookmark-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: var(--sv-bg-start);
   color: var(--sv-primary-dark);
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 6px 10px 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.sv-bookmark-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.1);
+  font-size: 10px;
+  line-height: 1;
+}
+
+/* ---- Bookmark tab: filled icon + accent color while the current page is
+   bookmarked ---- */
+#bookmarkTab.sv-bookmark-active { color: var(--sv-accent); }
+#bookmarkTab.sv-bookmark-active .sv-tab-icon path { fill: var(--sv-accent); }
+
+/* ---- Toast (brief confirmation after bookmarking/removing) ---- */
+.sv-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 90px;
+  transform: translateX(-50%);
+  background: rgba(20, 30, 45, 0.92);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 999px;
+  z-index: 40;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  animation: sv-toast-in 0.2s ease;
+}
+@keyframes sv-toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 .sv-contents-list {
@@ -854,7 +964,7 @@ html, body {
   .sv-slider { display: none; }
   .sv-tab-bar { padding-top: 4px; border-top: none; }
   .sv-tab { padding: 2px 10px; gap: 0; }
-  .sv-tab-icon { font-size: 15px; }
+  .sv-tab-icon { width: 15px; height: 15px; }
   .sv-tab span:last-child { display: none; }
 
   .sv-rotate-hint { display: none; } /* already landscape — never relevant here */
@@ -863,6 +973,17 @@ html, body {
 @media (max-width: 360px) {
   .sv-btn { padding: 9px 12px; font-size: 12px; }
   .sv-page-indicator { font-size: 13px; }
+
+  /* Narrow phones (iPhone SE and similar ~320-360px) — the header packs a
+     back button, decorative icon, title/subtitle and 3 action buttons;
+     shrink the chrome so the title gets enough room to avoid truncating. */
+  .sv-header { padding: 12px 10px; gap: 6px; }
+  .sv-header-brand { gap: 6px; }
+  .sv-header-icon { width: 34px; height: 34px; font-size: 17px; border-radius: 12px; }
+  .sv-header-text h1 { font-size: 16px; }
+  .sv-header-text p { font-size: 11px; }
+  .sv-header-actions { gap: 4px; }
+  .sv-icon-btn { width: 30px; height: 30px; font-size: 13px; }
 }
 
 /* Fullscreen mode tweak */

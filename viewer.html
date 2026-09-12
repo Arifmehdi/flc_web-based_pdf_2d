@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/style.css?v=20250912b" />
 </head>
 <body oncontextmenu="return false;">
 
@@ -83,13 +83,26 @@
 
       <nav class="sv-tab-bar">
         <button id="pagesTab" class="sv-tab">
-          <span class="sv-tab-icon">▦</span><span>Pages</span>
+          <span class="sv-tab-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 3.8C8.5 2.5 6.1 2 3.3 2.2v14.6c2.8-.2 5.2.3 6.7 1.5 1.5-1.2 3.9-1.7 6.7-1.5V2.2C13.9 2 11.5 2.5 10 3.8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M10 3.8v14.6" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </span><span>Pages</span>
         </button>
         <button id="bookmarkTab" class="sv-tab">
-          <span class="sv-tab-icon">🔖</span><span>Bookmark</span>
+          <span class="sv-tab-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 3h10a1 1 0 0 1 1 1v13l-6-3.6L4 17V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+          </span><span>Bookmark</span>
         </button>
         <button id="contentsTab" class="sv-tab">
-          <span class="sv-tab-icon">≡</span><span>Contents</span>
+          <span class="sv-tab-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </span><span>Contents</span>
         </button>
       </nav>
     </footer>
@@ -99,6 +112,10 @@
       <div class="sv-panel-header">
         <h2>Pages</h2>
         <button class="sv-panel-close" data-close-panel>✕</button>
+      </div>
+      <div id="bookmarksStrip" class="sv-bookmarks-strip sv-hidden">
+        <span class="sv-bookmarks-label">🔖 Bookmarked</span>
+        <div id="bookmarksChips" class="sv-bookmarks-chips"></div>
       </div>
       <div id="pagesGrid" class="sv-pages-grid"></div>
     </div>
@@ -132,10 +149,12 @@
       </div>
     </div>
 
+    <div id="svToast" class="sv-toast sv-hidden"></div>
+
   </div>
 
   <!-- pdf.js -->
   <script src="js/vendor/pdf.min.js"></script>
-  <script src="js/viewer.js"></script>
+  <script src="js/viewer.js?v=20250912b"></script>
 </body>
 </html>

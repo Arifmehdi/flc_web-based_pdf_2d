@@ -7,32 +7,113 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css" />
-<link rel="stylesheet" href="css/booklist.css" />
+<link rel="stylesheet" href="css/style.css?v=20250912b" />
+<link rel="stylesheet" href="css/booklist.css?v=20250912b" />
 </head>
 <body>
 
   <div class="bl-page">
     <header class="bl-header">
-      <div class="bl-header-brand">
-        <button id="blBackBtn" class="bl-back-btn" title="Back to your story" aria-label="Back to your story">‹</button>
-        <span class="bl-header-icon" aria-hidden="true">📖</span>
-        <div>
-          <h1>Story Time</h1>
-          <p>Pick a story to begin</p>
-        </div>
+      <button id="blBackBtn" class="bl-icon-btn" title="Back to your story" aria-label="Back to your story">‹</button>
+      <span class="bl-header-icon" aria-hidden="true">📖</span>
+      <div class="bl-header-titlewrap">
+        <h1>Story Time <span class="bl-sparkle" aria-hidden="true">✨</span></h1>
+        <p>Pick a story to begin</p>
       </div>
+      <button id="blSearchBtn" class="bl-icon-btn" title="Search stories" aria-label="Search stories">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="9" cy="9" r="6.25" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M17 17l-3.6-3.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
     </header>
+
+    <div id="blSearchBar" class="bl-search-bar bl-hidden">
+      <input type="search" id="blSearchInput" placeholder="Search stories by title…" />
+    </div>
+
+    <nav class="bl-filters">
+      <button class="bl-filter-pill bl-filter-active" data-filter="all">
+        <span class="bl-filter-icon">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2.5" y="2.5" width="6.5" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+            <rect x="11" y="2.5" width="6.5" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+            <rect x="2.5" y="11" width="6.5" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+            <rect x="11" y="11" width="6.5" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+        </span> All Stories
+      </button>
+      <button class="bl-filter-pill" data-filter="favorites">
+        <span class="bl-filter-icon">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 17.2s-6.7-4.2-9-8.3C-0.4 5.7 1.6 2.6 4.9 2.6c1.9 0 3.5 1 5.1 3 1.6-2 3.2-3 5.1-3 3.3 0 5.3 3.1 3.9 6.3-2.3 4.1-9 8.3-9 8.3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+          </svg>
+        </span> Favorites
+      </button>
+      <button class="bl-filter-pill" data-filter="popular">
+        <span class="bl-filter-icon">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 2.5l2.35 4.76 5.25.76-3.8 3.71.9 5.23L10 14.5l-4.7 2.46.9-5.23-3.8-3.71 5.25-.76L10 2.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+          </svg>
+        </span> Popular
+      </button>
+      <button class="bl-filter-pill bl-hidden" id="blAgeFilterBtn" data-filter="age">
+        <span class="bl-filter-icon">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="10" cy="6.2" r="3.2" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M3 17c0-3.6 3.1-6 7-6s7 2.4 7 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </span> Age
+      </button>
+    </nav>
+    <select id="blAgeSelect" class="bl-age-select bl-hidden" aria-label="Filter by age range"></select>
 
     <main class="bl-main">
       <div id="blLoading" class="bl-status">Loading stories…</div>
       <div id="blEmpty" class="bl-status bl-hidden">No stories are available yet. Please check back soon!</div>
+      <div id="blNoResults" class="bl-status bl-hidden">No stories match here. Try a different search or filter.</div>
       <div id="blGrid" class="bl-grid"></div>
     </main>
+
+    <section class="bl-promo">
+      <div class="bl-promo-banner" id="blPromoBanner" role="img" aria-label="More stories coming soon! Explore, read and grow with amazing stories."></div>
+    </section>
+
+    <nav class="bl-bottom-nav">
+      <button class="bl-bottom-tab bl-bottom-active" data-tab="all">
+        <span class="bl-bottom-icon">📖</span><span>Stories</span>
+      </button>
+      <button class="bl-bottom-tab" data-tab="favorites">
+        <span class="bl-bottom-icon">♥</span><span>Favorites</span>
+      </button>
+      <button class="bl-bottom-tab" id="blSettingsTab">
+        <span class="bl-bottom-icon">⚙</span><span>Settings</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Settings popup (theme picker) — same pattern as the viewer's -->
+  <div id="settingsPanel" class="sv-modal-overlay sv-panel-hidden">
+    <div class="sv-modal-box">
+      <div class="sv-modal-header">
+        <h2>Settings</h2>
+        <button class="sv-modal-close" id="blSettingsClose">✕</button>
+      </div>
+      <div class="sv-settings-body">
+        <p class="sv-settings-label">Theme</p>
+        <div id="themeSwatches" class="sv-theme-swatches">
+          <button class="sv-theme-swatch sv-swatch-blue" data-theme="blue" title="Blue" aria-label="Blue theme"></button>
+          <button class="sv-theme-swatch sv-swatch-green" data-theme="green" title="Green" aria-label="Green theme"></button>
+          <button class="sv-theme-swatch sv-swatch-sunset" data-theme="sunset" title="Sunset" aria-label="Sunset theme"></button>
+          <button class="sv-theme-swatch sv-swatch-purple" data-theme="purple" title="Purple" aria-label="Purple theme"></button>
+          <button class="sv-theme-swatch sv-swatch-night" data-theme="night" title="Night" aria-label="Night theme"></button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="js/vendor/pdf.min.js"></script>
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/vendor/pdf.worker.min.js';</script>
-  <script src="js/booklist.js"></script>
+  <script src="js/booklist.js?v=20250912b"></script>
 </body>
 </html>
